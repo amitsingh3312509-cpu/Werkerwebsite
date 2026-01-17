@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Worker Salary Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{font-family:Arial;background:#f2f2f2;margin:0}
+.container{max-width:900px;margin:auto;padding:20px}
+.box{background:#fff;padding:20px;border-radius:10px;box-shadow:0 0 10px #ccc}
+input,button{padding:10px;margin:5px;width:100%}
+button{background:#007bff;color:white;border:none;border-radius:5px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:8px;text-align:center}
+th{background:#007bff;color:#fff}
+.hidden{display:none}
+</style>
+</head>
 
+<body>
+<div class="container">
+
+<!-- LOGIN -->
+<div id="loginBox" class="box">
+<h2>Admin Login</h2>
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p id="loginMsg" style="color:red"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="box hidden">
+<h2>Worker Salary Management</h2>
+
+<input id="search" placeholder="Search Worker Name" onkeyup="searchWorker()">
+
+<h3>Add Worker</h3>
+<input id="wname" placeholder="Worker Name">
+<input id="salary" type="number" placeholder="Salary">
+<input id="payment" placeholder="Payment Type (Cash / Online)">
+<button onclick="addWorker()">Add Worker</button>
+
+<table>
+<thead>
+<tr>
+<th>Name</th><th>Salary</th><th>Payment</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="workerList"></tbody>
+</table>
+
+<button onclick="logout()">Logout</button>
+</div>
+
+</div>
+
+<script>
+let workers=[];
+
+function login(){
+let u=document.getElementById("user").value.trim().toLowerCase();
+let p=document.getElementById("pass").value.trim();
+if(u==="amit kumar singh" && p==="28052005"){
+document.getElementById("loginBox").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+}else{
+document.getElementById("loginMsg").innerText="Username या Password गलत है";
+}
+}
+
+function addWorker(){
+let name=wname.value;
+let sal=salary.value;
+let pay=payment.value;
+if(name==="")return;
+workers.push({name,sal,pay});
+display();
+wname.value=salary.value=payment.value="";
+}
+
+function display(){
+let html="";
+workers.forEach((w,i)=>{
+html+=`<tr>
+<td>${w.name}</td>
+<td>${w.sal}</td>
+<td>${w.pay}</td>
+<td><button onclick="workers.splice(${i},1);display()">Delete</button></td>
+</tr>`;
+});
+workerList.innerHTML=html;
+}
+
+function searchWorker(){
+let s=search.value.toLowerCase();
+document.querySelectorAll("#workerList tr").forEach(r=>{
+r.style.display=r.innerText.toLowerCase().includes(s)?"":"none";
+});
+}
+
+function logout(){
+location.reload();
+}
+</script>
+
+</body>
+  </html>
