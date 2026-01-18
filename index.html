@@ -1,184 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Worker Salary System</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Worker Management System | Amit Kumar Singh</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body{font-family:Arial;background:#eef;margin:0}
-.container{max-width:1100px;margin:auto;padding:20px}
-.box{background:#fff;padding:20px;border-radius:10px;box-shadow:0 0 10px #aaa;margin-bottom:20px}
-input,button,select{padding:10px;margin:5px;width:100%}
-button{background:#007bff;color:#fff;border:none;border-radius:5px;cursor:pointer}
-table{width:100%;border-collapse:collapse}
+body{font-family:Arial;background:#eef2f3;margin:0}
+.container{max-width:1000px;margin:auto;padding:20px}
+.box{background:#fff;padding:20px;border-radius:10px;box-shadow:0 0 10px #ccc;margin-bottom:20px}
+h1,h2,h3{text-align:center}
+input,select,button{padding:10px;margin:6px 0;width:100%}
+button{background:#007bff;color:#fff;border:none;border-radius:5px;font-size:16px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;padding:8px;text-align:center}
 th{background:#007bff;color:#fff}
 .hidden{display:none}
-@media print {.noprint{display:none}}
+.footer{text-align:center;color:#555;margin-top:20px}
 </style>
 </head>
 
 <body>
 <div class="container">
 
+<!-- INTRO -->
+<div class="box">
+<h1>Worker Management System</h1>
+<p style="text-align:center">
+50 Workers तक salary, payment और record manage करने के लिए
+</p>
+<p style="text-align:center"><b>Created by Amit Kumar Singh</b></p>
+</div>
+
 <!-- LOGIN -->
 <div id="loginBox" class="box">
-<h2>Login</h2>
-<select id="role">
-<option value="admin">Admin</option>
-<option value="worker">Worker</option>
-</select>
+<h2>Admin Login</h2>
 <input id="user" placeholder="Username">
 <input id="pass" type="password" placeholder="Password">
 <button onclick="login()">Login</button>
-<p id="msg" style="color:red"></p>
+<p id="loginMsg" style="color:red;text-align:center"></p>
 </div>
 
-<!-- ADMIN -->
-<div id="admin" class="box hidden">
-<h2>Admin Dashboard</h2>
+<!-- DASHBOARD -->
+<div id="dashboard" class="box hidden">
 
-<input id="search" placeholder="Search Worker" onkeyup="searchWorker()">
+<h2>Add Worker</h2>
 
-<h3>Add / Update Worker</h3>
 <input id="wname" placeholder="Worker Name">
+<input id="mobile" placeholder="Worker Mobile Number">
 <input id="salary" type="number" placeholder="Salary">
 <select id="payment">
+<option value="">Payment Type</option>
 <option>Cash</option>
 <option>Online</option>
 </select>
-<input id="month" placeholder="Month (Jan 2026)">
-<button onclick="addWorker()">Save</button>
 
+<button onclick="submitWorker()">Submit</button>
+
+<h3>Worker List</h3>
 <table>
 <thead>
-<tr><th>Name</th><th>Salary</th><th>Payment</th><th>Month</th><th>Action</th></tr>
+<tr>
+<th>Name</th>
+<th>Mobile</th>
+<th>Salary</th>
+<th>Payment</th>
+<th>Action</th>
+</tr>
 </thead>
-<tbody id="list"></tbody>
+<tbody id="workerList"></tbody>
 </table>
 
-<h3>Total Salary: ₹ <span id="total">0</span></h3>
-
-<button onclick="changePassword()" class="noprint">Change Admin Password</button>
-<button onclick="logout()" class="noprint">Logout</button>
+<button onclick="logout()">Logout</button>
 </div>
 
-<!-- WORKER -->
-<div id="worker" class="box hidden">
-<h2>My Salary</h2>
-<table>
-<thead>
-<tr><th>Name</th><th>Salary</th><th>Payment</th><th>Month</th></tr>
-</thead>
-<tbody id="myData"></tbody>
-</table>
-<button onclick="window.print()">Print Salary Slip</button>
-<button onclick="changePassword()">Change Password</button>
-<button onclick="logout()">Logout</button>
+<div class="footer">
+© 2026 Worker Management System
 </div>
 
 </div>
 
 <script>
-let workers=JSON.parse(localStorage.getItem("workers"))||[];
-let adminPass=localStorage.getItem("adminPass")||"28052005";
-let workerPass=localStorage.getItem("workerPass")||"1234";
-let currentUser="",currentRole="";
+/* ADMIN LOGIN */
+const ADMIN_USER="amit kumar singh";
+const ADMIN_PASS="28052005";
+
+/* ✅ MANAGER WHATSAPP NUMBER */
+const MANAGER_NUMBER="919151041867"; // 91 + 9151041867
+
+let workers = JSON.parse(localStorage.getItem("workers") || "[]");
 
 function login(){
-let r=role.value;
 let u=user.value.trim().toLowerCase();
 let p=pass.value.trim();
-
-if(r==="admin" && u==="amit kumar singh" && p===adminPass){
-currentRole="admin";
+if(u===ADMIN_USER && p===ADMIN_PASS){
 loginBox.classList.add("hidden");
-admin.classList.remove("hidden");
-showAdmin();
+dashboard.classList.remove("hidden");
+display();
+}else{
+loginMsg.innerText="Username या Password गलत है";
 }
-else if(r==="worker" && p===workerPass){
-currentRole="worker";
-currentUser=u;
-loginBox.classList.add("hidden");
-worker.classList.remove("hidden");
-showWorker();
-}
-else msg.innerText="Login गलत है";
 }
 
-function addWorker(){
-workers.push({
-name:wname.value,
-salary:Number(salary.value),
-payment:payment.value,
-month:month.value
-});
-save();
-wname.value=salary.value=month.value="";
+function submitWorker(){
+let name=wname.value.trim();
+let mob=mobile.value.trim();
+let sal=salary.value.trim();
+let pay=payment.value;
+
+if(!name || !mob || !sal || !pay){
+alert("All fields required");
+return;
 }
 
-function showAdmin(){
-let html="",t=0;
+let worker={name,mob,sal,pay};
+workers.push(worker);
+localStorage.setItem("workers",JSON.stringify(workers));
+display();
+
+/* WhatsApp Message */
+let msg=
+`New Worker Added%0A
+Name: ${name}%0A
+Mobile: ${mob}%0A
+Salary: ₹${sal}%0A
+Payment: ${pay}`;
+
+let url=`https://wa.me/${MANAGER_NUMBER}?text=${msg}`;
+window.open(url,"_blank");
+
+/* Clear form */
+wname.value="";
+mobile.value="";
+salary.value="";
+payment.value="";
+}
+
+function display(){
+let html="";
 workers.forEach((w,i)=>{
-t+=w.salary;
 html+=`<tr>
 <td>${w.name}</td>
-<td>₹${w.salary}</td>
-<td>${w.payment}</td>
-<td>${w.month}</td>
+<td>${w.mob}</td>
+<td>₹${w.sal}</td>
+<td>${w.pay}</td>
 <td><button onclick="del(${i})">Delete</button></td>
 </tr>`;
 });
-list.innerHTML=html;
-total.innerText=t;
-}
-
-function showWorker(){
-let html="";
-workers.filter(w=>w.name.toLowerCase()===currentUser)
-.forEach(w=>{
-html+=`<tr>
-<td>${w.name}</td>
-<td>₹${w.salary}</td>
-<td>${w.payment}</td>
-<td>${w.month}</td>
-</tr>`;
-});
-myData.innerHTML=html;
+workerList.innerHTML=html;
 }
 
 function del(i){
 workers.splice(i,1);
-save();
-}
-
-function save(){
 localStorage.setItem("workers",JSON.stringify(workers));
-showAdmin();
+display();
 }
 
-function searchWorker(){
-let s=search.value.toLowerCase();
-document.querySelectorAll("#list tr").forEach(r=>{
-r.style.display=r.innerText.toLowerCase().includes(s)?"":"none";
-});
+function logout(){
+location.reload();
 }
-
-function changePassword(){
-let np=prompt("Enter new password");
-if(!np) return;
-if(currentRole==="admin"){
-adminPass=np;
-localStorage.setItem("adminPass",np);
-alert("Admin password changed");
-}else{
-workerPass=np;
-localStorage.setItem("workerPass",np);
-alert("Worker password changed");
-}
-}
-
-function logout(){location.reload();}
 </script>
+
 </body>
   </html>
