@@ -2,154 +2,118 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>Class 12 Mock Test (Hindi) - 75 Questions</title>
+<title>PCM Mock Test</title>
 <style>
-body{font-family:Arial;background:#eef;margin:0;padding:0}
-.container{max-width:900px;margin:auto;padding:20px}
-.login-box, .start-box{background:#fff;padding:20px;border-radius:8px;max-width:400px;margin:100px auto;text-align:center}
-input{width:90%;padding:10px;margin:10px}
-button{padding:8px 15px;background:#007bff;color:#fff;border:none;cursor:pointer;margin-top:5px;}
-button:hover{background:#0056b3}
-.question{background:#fff;border:1px solid #ccc;padding:15px;margin:10px 0;border-radius:5px}
-.result{background:#d4edda;padding:10px;margin-top:10px}
-.wrong{background:#f8d7da;padding:10px;margin-top:10px}
-.timer{background:#fff;border:1px solid #007bff;padding:10px;margin-bottom:20px;border-radius:5px;font-weight:bold;text-align:center;}
-.option{display:block;margin:5px 0;margin-left:20px;}
+body{font-family:Arial;background:#f2f2f2}
+.container{max-width:900px;margin:auto;background:#fff;padding:20px}
+.question{margin:15px 0;padding:10px;border:1px solid #ccc}
+.option{display:block;margin-left:20px}
+button{padding:8px 15px;margin:10px;background:#007bff;color:#fff;border:none}
+.result{background:#e6ffe6;padding:10px;margin-top:20px}
+.wrong{color:red}
+.correct{color:green}
 </style>
 </head>
+
 <body>
 
-<div id="loginPage" class="login-box">
-  <h2>Login to Mock Test</h2>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <p id="loginMsg" style="color:red;"></p>
-</div>
+<div class="container">
 
-<div id="startPage" class="start-box" style="display:none">
-  <h2>Welcome to Mock Test</h2>
-  <p>कृपया नीचे क्लिक करके टेस्ट शुरू करें:</p>
-  <button onclick="startTest()">Start Test</button>
-</div>
+<h2>PCM Mock Test</h2>
 
-<div id="testPage" style="display:none" class="container">
-  <h1 style="text-align:center">Class 12 NCERT Mock Test (Hindi)</h1>
-  <div class="timer" id="timer">समय शेष: 90:00</div>
-  <div id="quiz"></div>
-  <button onclick="submitTest()">Submit Test</button>
-  <button onclick="downloadQuestionPDF()">📄 Question PDF</button>
-  <button onclick="downloadAnswerPDF()">📘 Answer Key PDF</button>
-  <div id="result"></div>
+<!-- QUESTIONS -->
+<div id="quiz"></div>
+
+<button onclick="submitTest()">Submit Test</button>
+<button onclick="downloadAnswerPDF()">Answer Key PDF</button>
+
+<div id="result"></div>
+
 </div>
 
 <script>
-// ===== LOGIN =====
-function login(){
-  const u=document.getElementById("username").value;
-  const p=document.getElementById("password").value;
-  if(u==="Meera Singh" && p==="255225"){
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("startPage").style.display="block";
-  }else{
-    document.getElementById("loginMsg").innerText="गलत Username या Password";
-  }
-}
-
-// ===== QUESTIONS =====
 const questions=[
-  // Physics 25
-  {q:"कूलॉम का नियम किस पर लागू होता है?", o:["स्थिर बिंदु आवेश","धारा","चुंबक","तरंग"], a:0},
-  {q:"विद्युत क्षेत्र की SI इकाई क्या है?", o:["N/C","V","J","C"], a:0},
-  {q:"विद्युत विभव किसे कहते हैं?", o:["बल","ऊर्जा/आवेश","शक्ति","कार्य"], a:1},
-  {q:"ओम का नियम क्या है?", o:["V=IR","I=VR","R=VI","V=I/R"], a:0},
-  {q:"प्रतिरोध की इकाई क्या है?", o:["वोल्ट","ओम","एम्पियर","वाट"], a:1},
-  {q:"चालक में धारा प्रवाह किससे होता है?", o:["इलेक्ट्रॉनों","प्रोटॉनों","न्यूट्रॉनों","आईऑनों"], a:0},
-  {q:"लॉरेंट्ज़ बल किस पर लगता है?", o:["स्थिर आवेश","गतिमान आवेश","द्रव्यमान","ऊर्जा"], a:1},
-  {q:"फैराडे का नियम किससे संबंधित है?", o:["विद्युत प्रेरण","प्रतिरोध","धारा","ऊर्जा"], a:0},
-  {q:"AC का औसत मान एक चक्र में?", o:["अधिकतम","न्यूनतम","शून्य","1"], a:2},
-  {q:"ट्रांसफॉर्मर कार्य करता है?", o:["DC","AC","दोनों","कोई नहीं"], a:1},
-  {q:"EM तरंगों को माध्यम चाहिए?", o:["हाँ","नहीं","कभी-कभी","निर्भर"], a:1},
-  {q:"पूर्ण आंतरिक परावर्तन कब होता है?", o:["घन से विरल","विरल से घन","दोनों","निर्वात"], a:0},
-  {q:"फोटोइलेक्ट्रिक प्रभाव दर्शाता है?", o:["तरंग","कण","ऊष्मा","गुरुत्व"], a:1},
-  {q:"लेज़र प्रकाश होता है?", o:["असंगत","संगत","बहुरंगी","कमजोर"], a:1},
-  {q:"विद्युत शक्ति का सूत्र?", o:["VI","V/I","IR","R/I"], a:0},
-  {q:"चुंबकीय फ्लक्स की इकाई?", o:["टेस्ला","वेबर","हेनरी","ओम"], a:1},
-  {q:"डायोड का उपयोग किस लिए होता है?", o:["प्रवर्धक","संचालक","मापक","भंडारण"], a:0},
-  {q:"अर्धचालक चालकता किससे बढ़ती है?", o:["निम्न तापमान","उच्च तापमान","शून्य","स्थिर"], a:1},
-  {q:"संचार में शोर क्या है?", o:["संकेत","बाधा","प्रेषण","माध्यम"], a:1},
-  {q:"EM तरंगों की गति निर्वात में?", o:["c","v","0","अनंत"], a:0},
-  {q:"चुंबकीय क्षेत्र की इकाई?", o:["टेस्ला","एम्पियर/मीटर","वेबर","वोल्ट"], a:0},
-  {q:"सुपरकंडक्टर तापमान क्या होता है?", o:["0 K","77 K","273 K","300 K"], a:0},
-  {q:"लेनज़ का नियम किससे संबंधित है?", o:["विद्युत प्रेरण","प्रतिरोध","धारा","ऊर्जा"], a:0},
-  {q:"EM तरंगें किस प्रकार होती हैं?", o:["लंबवत कम्पन","क्षैतिज कम्पन","संतुलित","शून्य"], a:0},
-  {q:"फेराडे कैपेसिटिविटी किससे संबंधित है?", o:["परिणाम","धारा","वोल्टेज","आवेश"], a:3},
-
-  // Chemistry 25 (आप इसी format में जोड़ सकते हैं)
-  // Maths 25 (आप इसी format में जोड़ सकते हैं)
+ {
+  q:"कूलॉम का नियम किस पर लागू होता है?",
+  o:["स्थिर बिंदु आवेश","धारा","चुंबक","तरंग"],
+  a:0
+ },
+ {
+  q:"ओम का नियम क्या है?",
+  o:["V = IR","I = VR","R = VI","V = I/R"],
+  a:0
+ },
+ {
+  q:"विद्युत शक्ति का सूत्र है?",
+  o:["VI","IR","V/R","R/I"],
+  a:0
+ }
 ];
 
-// ===== START TEST =====
-function startTest(){
-  document.getElementById("startPage").style.display="none";
-  document.getElementById("testPage").style.display="block";
-  renderQuiz();
-  startTimer(90*60);
-}
+// SHOW QUESTIONS
+const quiz=document.getElementById("quiz");
+questions.forEach((q,i)=>{
+ let html=`<div class="question">
+ <b>प्रश्न ${i+1}. ${q.q}</b><br>`;
+ q.o.forEach((op,j)=>{
+   html+=`
+   <label class="option">
+   <input type="radio" name="q${i}" value="${j}">
+   ○ ${op}
+   </label>`;
+ });
+ html+="</div>";
+ quiz.innerHTML+=html;
+});
 
-// ===== RENDER QUIZ =====
-function renderQuiz(){
-  const quiz=document.getElementById("quiz");
-  quiz.innerHTML="";
-  questions.forEach((q,i)=>{
-    let html=`<div class="question"><b>प्रश्न ${i+1}. ${q.q}</b><br>`;
-    q.o.forEach(op=>{
-      html+=`<label class="option">○ ${op}</label>`;
-    });
-    quiz.innerHTML+=html+"</div>";
-  });
-}
-
-// ===== SUBMIT =====
+// SUBMIT
 function submitTest(){
-  let c=0,w=0,wrong=[];
-  questions.forEach((q,i)=>{
-    // यहाँ के लिए answer input system update करना पड़ेगा अगर आप radio input चाहते हैं
-    // फिलहाल dummy code score
-    c++; // dummy सभी सही दिखाने के लिए
-  });
-  document.getElementById("result").innerHTML=`सही: ${c} | गलत: ${w} | Score: ${c-w}`;
+ let correct=0, wrong=0;
+ let resHTML="<h3>Result</h3>";
+
+ questions.forEach((q,i)=>{
+  const sel=document.querySelector(`input[name="q${i}"]:checked`);
+  let userAns = sel ? parseInt(sel.value) : -1;
+
+  if(userAns===q.a){
+    correct++;
+    resHTML+=`<p class="correct">✔ प्रश्न ${i+1} सही</p>`;
+  }else{
+    wrong++;
+    resHTML+=`<p class="wrong">
+    ✘ प्रश्न ${i+1} गलत <br>
+    आपका उत्तर: ${userAns>=0?q.o[userAns]:"नहीं दिया"} <br>
+    सही उत्तर: ${q.o[q.a]}
+    </p>`;
+  }
+ });
+
+ resHTML+=`<hr>
+ कुल प्रश्न: ${questions.length}<br>
+ सही: ${correct}<br>
+ गलत: ${wrong}
+ `;
+ document.getElementById("result").innerHTML=resHTML;
 }
 
-// ===== PDF =====
-function downloadQuestionPDF(){window.print();}
+// ANSWER KEY PDF
 function downloadAnswerPDF(){
-  let t="Answer Key\n";
-  questions.forEach((q,i)=>t+=`Q${i+1}: ${q.o[q.a]}\n`);
-  let b=new Blob([t]);
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(b);
-  a.download="answer-key.txt";
-  a.click();
-}
+ let text="ANSWER KEY\n\n";
+ questions.forEach((q,i)=>{
+  text+=`प्रश्न ${i+1}. ${q.q}\n`;
+  q.o.forEach((op,j)=>{
+    text+=`${j===q.a?"✔":"○"} ${op}\n`;
+  });
+  text+="\n";
+ });
 
-// ===== TIMER =====
-function startTimer(duration){
-  let timer=duration, minutes, seconds;
-  const display=document.getElementById("timer");
-  const interval=setInterval(function(){
-    minutes=parseInt(timer/60,10);
-    seconds=parseInt(timer%60,10);
-    minutes=minutes<10?"0"+minutes:minutes;
-    seconds=seconds<10?"0"+seconds:seconds;
-    display.textContent=`समय शेष: ${minutes}:${seconds}`;
-    if(--timer<0){
-      clearInterval(interval);
-      alert("समय समाप्त! Test auto submit हो गया।");
-      submitTest();
-    }
-  },1000);
+ const blob=new Blob([text],{type:"text/plain"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="AnswerKey.txt";
+ a.click();
 }
 </script>
+
 </body>
-  </html>
+</html>
