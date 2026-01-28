@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shivam Jee Milk Dairy</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 body{margin:0;font-family:Arial;background:#eee}
-.app{max-width:450px;margin:auto;background:#fff;min-height:100vh;padding:10px}
-input,select,button{width:100%;padding:10px;margin:6px 0;font-size:14px}
-button{border:none;border-radius:6px;color:#fff;cursor:pointer}
+.app{max-width:430px;margin:auto;background:#fff;min-height:100vh;padding:10px}
+input,select,button{width:100%;padding:10px;margin:6px 0}
+button{border:none;border-radius:6px;color:#fff}
 .green{background:green}
 .blue{background:#0b5ed7}
 .red{background:red}
@@ -21,28 +22,28 @@ th,td{border:1px solid #000;padding:4px;text-align:center}
 .center{text-align:center}
 </style>
 </head>
+
 <body>
 
-<!-- WELCOME SLIDE -->
-<div class="app" id="welcomePage">
+<!-- WELCOME -->
+<div class="app" id="welcome">
 <h2 class="center">🌟 Welcome to Shivam Jee Milk Dairy 🌟</h2>
-<button class="green" onclick="showLogin()">Proceed to Login</button>
+<button class="green" onclick="openLogin()">Start</button>
 </div>
 
 <!-- LOGIN -->
-<div class="app hidden" id="loginPage">
+<div class="app hidden" id="login">
 <h3 class="center">🔐 Login</h3>
-<input id="loginUser" value="Shivam Yadav">
-<input id="loginPass" type="password" value="277210">
-<button class="green" onclick="login()">Login</button>
+<input id="user" value="Shivam Yadav">
+<input id="pass" type="password" value="277210">
+<button class="green" onclick="doLogin()">Login</button>
 </div>
 
 <!-- MAIN APP -->
-<div class="app hidden" id="mainApp">
+<div class="app hidden" id="main">
 
 <h3 class="center">🐄 Shivam Jee Milk Dairy 🐃</h3>
 
-<!-- ADD CUSTOMER -->
 <h4>नया ग्राहक जोड़ें</h4>
 <input id="cname" placeholder="ग्राहक का नाम">
 <input id="cvillage" placeholder="गाँव">
@@ -51,14 +52,16 @@ th,td{border:1px solid #000;padding:4px;text-align:center}
 <option>गाय</option>
 <option>भैंस</option>
 </select>
-<input type="file" id="cphoto" accept="image/*">
+
+<!-- 📷 DIRECT CAMERA -->
+<input type="file" id="cphoto" accept="image/*" capture="environment">
+
 <button class="green" onclick="addCustomer()">ग्राहक सेव करें</button>
 
 <hr>
 
-<!-- SELECT CUSTOMER -->
 <h4>ग्राहक चुनें</h4>
-<select id="customerSelect" onchange="selectCustomer()"></select>
+<select id="selectCustomer" onchange="loadCustomer()"></select>
 <button class="red" onclick="deleteCustomer()">पूरा ग्राहक Delete</button>
 
 <div id="customerBox"></div>
@@ -67,15 +70,15 @@ th,td{border:1px solid #000;padding:4px;text-align:center}
 
 <h4>आज की एंट्री</h4>
 <input type="date" id="date">
-<input id="qty" type="number" placeholder="लीटर">
-<input id="rate" type="number" placeholder="रेट ₹/लीटर">
-<input id="total" readonly placeholder="कुल ₹">
-<input id="paid" type="number" placeholder="आज दिया ₹">
+<input type="number" id="liter" placeholder="लीटर">
+<input type="number" id="rate" placeholder="₹ प्रति लीटर">
+<input id="total" placeholder="कुल ₹" readonly>
+<input type="number" id="paid" placeholder="आज दिया ₹">
 <button class="green" onclick="saveEntry()">सेव करें</button>
 
 <div class="card" id="summary"></div>
 
-<button class="blue" onclick="downloadPDF()">PDF डाउनलोड करें</button>
+<button class="blue" onclick="makePDF()">PDF डाउनलोड</button>
 <button class="blue" onclick="sendWhatsApp()">WhatsApp भेजें</button>
 <button class="red" onclick="logout()">Logout</button>
 
@@ -84,87 +87,106 @@ th,td{border:1px solid #000;padding:4px;text-align:center}
 </div>
 
 <script>
-// WELCOME
-function showLogin(){
- welcomePage.classList.add("hidden");
- loginPage.classList.remove("hidden");
+// AUTO LOGIN CHECK
+if(localStorage.getItem("login")==="yes"){
+ welcome.classList.add("hidden");
+ login.classList.add("hidden");
+ main.classList.remove("hidden");
+}
+
+// WELCOME → LOGIN
+function openLogin(){
+ welcome.classList.add("hidden");
+ login.classList.remove("hidden");
 }
 
 // LOGIN
-function login(){
- if(loginUser.value==="Shivam Yadav" && loginPass.value==="277210"){
-  localStorage.setItem("logged","yes");
-  loginPage.classList.add("hidden");
-  mainApp.classList.remove("hidden");
+function doLogin(){
+ if(user.value==="Shivam Yadav" && pass.value==="277210"){
+  localStorage.setItem("login","yes");
+  login.classList.add("hidden");
+  main.classList.remove("hidden");
  }
 }
 function logout(){
- localStorage.removeItem("logged");
+ localStorage.removeItem("login");
  location.reload();
-}
-if(localStorage.getItem("logged")==="yes"){
- welcomePage.classList.add("hidden");
- loginPage.classList.add("hidden");
- mainApp.classList.remove("hidden");
 }
 
 // DATA
 let customers = JSON.parse(localStorage.getItem("customers")) || [];
-let currentIndex=null;
-rate.oninput=qty.oninput=()=>{ total.value=(rate.value||0)*(qty.value||0); };
+let current = null;
+
+// AUTO TOTAL
+rate.oninput = liter.oninput = ()=>{
+ total.value = (rate.value||0) * (liter.value||0);
+};
 
 // ADD CUSTOMER
 function addCustomer(){
- let f=cphoto.files[0];
- if(!f || !cname.value){ alert("सभी जानकारी भरें"); return; }
- let r=new FileReader();
- r.onload=()=>{
-  customers.push({name:cname.value,village:cvillage.value,milk:cmilk.value,photo:r.result,entries:[]});
+ let f = cphoto.files[0];
+ if(!cname.value || !f){ alert("सारी जानकारी भरें"); return; }
+ let r = new FileReader();
+ r.onload = ()=>{
+  customers.push({
+   name:cname.value,
+   village:cvillage.value,
+   milk:cmilk.value,
+   photo:r.result,
+   entries:[]
+  });
   save();
  };
  r.readAsDataURL(f);
 }
 
-// SAVE TO LOCALSTORAGE
-function save(){ localStorage.setItem("customers",JSON.stringify(customers)); loadCustomerList(); }
+// SAVE
+function save(){
+ localStorage.setItem("customers",JSON.stringify(customers));
+ loadList();
+}
 
 // LOAD CUSTOMER LIST
-function loadCustomerList(){
- customerSelect.innerHTML="<option>ग्राहक चुनें</option>";
+function loadList(){
+ selectCustomer.innerHTML="<option>ग्राहक चुनें</option>";
  customers.forEach((c,i)=>{
   let o=document.createElement("option");
   o.value=i; o.text=c.name+" ("+c.village+")";
-  customerSelect.add(o);
+  selectCustomer.add(o);
  });
 }
 
-// SELECT CUSTOMER
-function selectCustomer(){
- currentIndex=customerSelect.value;
- let c=customers[currentIndex];
+// LOAD CUSTOMER
+function loadCustomer(){
+ current = selectCustomer.value;
+ let c = customers[current];
  customerBox.innerHTML=`<div class="card"><b>${c.name}</b><br>${c.village}<br>${c.milk}<img src="${c.photo}"></div>`;
  loadTable();
 }
 
 // SAVE ENTRY
 function saveEntry(){
- if(currentIndex===null){alert("ग्राहक चुनें"); return;}
- let c=customers[currentIndex];
- c.entries.push({date:date.value,qty:+qty.value,rate:+rate.value,total:+total.value,paid:+paid.value});
+ let c = customers[current];
+ c.entries.push({
+  date:date.value,
+  liter:+liter.value,
+  rate:+rate.value,
+  total:+total.value,
+  paid:+paid.value
+ });
  save(); loadTable();
 }
 
-// LOAD TABLE + SUMMARY
+// LOAD TABLE
 function loadTable(){
- if(currentIndex===null) return;
- let c=customers[currentIndex];
+ let c = customers[current];
  let t=0,p=0;
  table.innerHTML="<tr><th>तारीख</th><th>लीटर</th><th>₹</th><th>Paid</th><th>Due</th><th>❌</th></tr>";
  c.entries.forEach((e,i)=>{
   t+=e.total; p+=e.paid;
   let r=table.insertRow();
   r.insertCell(0).innerText=e.date;
-  r.insertCell(1).innerText=e.qty;
+  r.insertCell(1).innerText=e.liter;
   r.insertCell(2).innerText=e.total;
   r.insertCell(3).innerText=e.paid;
   r.insertCell(4).innerText=e.total-e.paid;
@@ -174,41 +196,45 @@ function loadTable(){
 }
 
 // DELETE ENTRY
-function delEntry(i){ customers[currentIndex].entries.splice(i,1); save(); loadTable(); }
+function delEntry(i){
+ customers[current].entries.splice(i,1);
+ save(); loadTable();
+}
 
 // DELETE CUSTOMER
 function deleteCustomer(){
- if(currentIndex===null){alert("ग्राहक चुनें");return;}
- if(confirm("पूरा ग्राहक हट जाएगा?")){
-  customers.splice(currentIndex,1); save();
-  customerBox.innerHTML=""; table.innerHTML=""; summary.innerHTML=""; loadCustomerList();
+ if(confirm("पूरा ग्राहक delete हो जाएगा")){
+  customers.splice(current,1);
+  save();
+  customerBox.innerHTML=""; table.innerHTML=""; summary.innerHTML="";
  }
 }
 
 // PDF
-function downloadPDF(){
- if(currentIndex===null){alert("ग्राहक चुनें"); return;}
- const {jsPDF}=window.jspdf; let pdf=new jsPDF(); let y=10;
- let c=customers[currentIndex];
+function makePDF(){
+ const {jsPDF}=window.jspdf;
+ let pdf=new jsPDF(), y=10;
+ let c=customers[current];
  pdf.text("Shivam Jee Milk Dairy",10,y); y+=10;
- pdf.text(`${c.name} (${c.village})`,10,y); y+=8;
+ pdf.text(c.name+" ("+c.village+")",10,y); y+=10;
  c.entries.forEach(e=>{
-  pdf.text(`${e.date} | ${e.qty}L | ₹${e.total} | Paid ₹${e.paid} | Due ₹${e.total-e.paid}`,10,y); y+=6;
+  pdf.text(`${e.date} | ₹${e.total} | Paid ₹${e.paid}`,10,y); y+=6;
  });
- pdf.save(`${c.name}_Milk_Report.pdf`);
+ pdf.save(c.name+".pdf");
 }
 
-// WhatsApp
+// WHATSAPP
 function sendWhatsApp(){
- if(currentIndex===null){alert("ग्राहक चुनें"); return;}
- let c=customers[currentIndex]; let msg=`${c.name} (${c.village})%0A`;
+ let c=customers[current];
+ let msg=`${c.name}%0A`;
  c.entries.forEach(e=>{
-  msg+=`${e.date} ${e.qty}L ₹${e.total} Paid ₹${e.paid} Due ₹${e.total-e.paid}%0A`;
+  msg+=`${e.date} ₹${e.total} Paid ₹${e.paid}%0A`;
  });
  window.open(`https://wa.me/?text=${msg}`);
 }
 
-loadCustomerList();
+loadList();
 </script>
+
 </body>
- </html>
+</html>
